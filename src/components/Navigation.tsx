@@ -36,7 +36,6 @@ export const Navigation = () => {
     <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-border shadow-sm animate-slide-down">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-           Logo
           <button
               onClick={() => navigate("/")}
               className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
