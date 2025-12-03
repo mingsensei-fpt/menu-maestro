@@ -43,10 +43,11 @@ export const Navigation = () => {
           >
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
               <img
-                  src="/src/assets/restaurant-logo.jpg"
+                  src="https://res.cloudinary.com/dbp8ozwty/image/upload/v1764756385/z7288581516415_acc08636c048abc731036e54bc165913_gwix72.jpg"
                   alt="Restaurant"
                   className="w-full h-full object-cover"
               />
+
             </div>
 
 
