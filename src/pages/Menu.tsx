@@ -128,33 +128,26 @@ const Menu = () => {
 
 
 
-      <header
-          className="
-    relative text-white py-16 md:py-24 px-4
-    bg-[radial-gradient(circle_at_center,rgba(255,180,180,0.7),rgba(180,40,40,0.85))]
-    backdrop-brightness-95
-  "
-      >
+  {/*    <header*/}
+  {/*        className="*/}
+  {/*  relative text-white py-16 md:py-24 px-4*/}
+  {/*  bg-[radial-gradient(circle_at_center,rgba(255,180,180,0.7),rgba(180,40,40,0.85))]*/}
+  {/*  backdrop-brightness-95*/}
+  {/*"*/}
+  {/*    >*/}
 
 
-      {/* Overlay */}
-        <div className="absolute inset-0 bg-black/40 backdrop-brightness-90"></div>
+  {/*    /!* Overlay *!/*/}
+  {/*      <div className="absolute inset-0 bg-black/40 backdrop-brightness-90"></div>*/}
 
-        {/* Content */}
-        <div className="container mx-auto max-w-6xl relative z-10 text-center">
-          <h1 className="text-4xl md:text-7xl font-serif font-bold mb-2 md:mb-4 drop-shadow-lg">
-            Riverside Terrace Restaurant
-          </h1>
-
-          <p
-              className="text-lg md:text-2xl font-light opacity-95 drop-shadow-md"
-          >
-            Fresh flavors, beautiful views
-          </p>
-
-          <div className="mt-4 md:mt-6 h-1 w-24 bg-white/60 mx-auto rounded"></div>
-        </div>
-      </header>
+  {/*      /!* Content *!/*/}
+  {/*      <div className="container mx-auto max-w-6xl relative z-10 text-center">*/}
+  {/*        <h1 className="text-4xl md:text-7xl font-serif font-bold mb-2 md:mb-4 drop-shadow-lg">*/}
+  {/*          Riverside Terrace Restaurant*/}
+  {/*        </h1>*/}
+  {/*        <div className="mt-4 md:mt-6 h-1 w-24 bg-white/60 mx-auto rounded"></div>*/}
+  {/*      </div>*/}
+  {/*    </header>*/}
 
 
       {/* Filters Section */}
@@ -233,17 +226,21 @@ const Menu = () => {
       />
 
       {/* Footer */}
-      <footer className="relative bg-red-700 text-white py-12 mt-12">
-        {/* Overlay làm mờ màu đỏ */}
-        <div className="absolute inset-0 bg-red-700 opacity-60 pointer-events-none"></div>
+      <footer className="relative bg-white text-black py-12 mt-12">
+        <div className="absolute inset-0 bg-white opacity-50 pointer-events-none"></div>
 
         <div className="relative z-10 container mx-auto max-w-6xl px-4 text-center">
-          <p className="font-serif text-2xl mb-3">Riverside Terrace Restaurant</p>
+          <p className="font-serif text-2xl mb-3">
+            <span className="text-green-700">Riverside Terrace</span>{' '}
+            <span className="text-red-700">Restaurant</span>
+          </p>
+
           <p className="text-sm opacity-90 mb-4">Where great food meets great views</p>
           <div className="h-px w-32 bg-white/30 mx-auto"></div>
-          <p className="text-xs mt-4 opacity-75">© 2024 All rights reserved</p>
+          <p className="text-xs mt-4 opacity-75">© 2025 All rights reserved</p>
         </div>
       </footer>
+
 
 
     </div>

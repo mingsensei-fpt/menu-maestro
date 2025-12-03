@@ -41,17 +41,21 @@ export const Navigation = () => {
               onClick={() => navigate("/")}
               className="flex items-center gap-2 text-foreground hover:text-primary transition-colors"
           >
-            <div className="w-10 h-10 rounded-full overflow-hidden">
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md">
               <img
-                  src="/src/assets/restaurant.png"
+                  src="/src/assets/restaurant-logo.jpg"
                   alt="Restaurant"
                   className="w-full h-full object-cover"
               />
             </div>
 
+
             <span className="font-serif text-xl font-bold hidden sm:inline">
-    Riverside Terrace Restaurant
-  </span>
+  <span className="text-green-700">Riverside Terrace</span>{' '}
+              <span className="text-red-700">Restaurant</span>
+</span>
+
+
           </button>
 
 
