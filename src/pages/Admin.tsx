@@ -164,7 +164,7 @@ const Admin = () => {
                     Add Item
                   </Button>
                 </div>
-                <AdminMenuList onEdit={handleEdit} />
+                <AdminMenuList onEdit={handleEdit} categories={categories} />
               </>
             ) : (
               <AdminMenuForm

@@ -1,11 +1,4 @@
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  image_url: string | null;
-}
+import { MenuItem } from "@/type/type";
 
 interface MobileMenuItemCardProps {
   item: MenuItem;

@@ -2,8 +2,14 @@ export interface MenuItem {
     id: string;
     name: string;
     description: string;
+    description_ko: string | null;
+    description_ja: string | null;
+    description_cn: string | null;
+    description_vi: string | null;
+    description_ru: string | null;
+    description_kz: string | null;
     price: number;
-    category: string;
+    category_id: string | null;
     image_url: string | null;
 }
 

@@ -1,14 +1,7 @@
 import { X, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  image_url: string | null;
-}
+import { useLanguage, Language } from "@/contexts/LanguageContext";
+import { MenuItem } from "@/type/type";
 
 interface MenuItemDetailModalProps {
   item: MenuItem | null;
@@ -16,16 +9,31 @@ interface MenuItemDetailModalProps {
 }
 
 export const MenuItemDetailModal = ({ item, onClose }: MenuItemDetailModalProps) => {
+  const { language } = useLanguage();
+
   if (!item) return null;
+
+  const getDescription = () => {
+    const descriptionMap: Record<Language, string | null> = {
+      en: item.description,
+      ko: item.description_ko,
+      ja: item.description_ja,
+      cn: item.description_cn,
+      vi: item.description_vi,
+      ru: item.description_ru,
+      kz: item.description_kz,
+    };
+    return descriptionMap[language] || item.description;
+  };
 
   return (
     <div 
-      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in flex flex-col items-center justify-start pt-16 md:pt-20 pb-8 px-4"
+      className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in flex flex-col items-center justify-center px-4"
       onClick={onClose}
     >
       {/* Modal Card */}
       <div 
-        className="w-full max-w-lg bg-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden"
+        className="w-full max-w-lg bg-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
@@ -55,18 +63,18 @@ export const MenuItemDetailModal = ({ item, onClose }: MenuItemDetailModalProps)
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="p-6 pt-4">
           <h2 className="font-serif text-2xl md:text-3xl font-bold text-foreground mb-4">
             {item.name}
           </h2>
           
-          <p className="text-muted-foreground leading-relaxed">
-            {item.description}
+          <p className="text-muted-foreground leading-relaxed mb-6">
+            {getDescription()}
           </p>
         </div>
       </div>
 
-      {/* Back to Menu Button - Separate from modal */}
+      {/* Back to Menu Button - Outside the modal card */}
       <Button
         onClick={onClose}
         className="mt-6 gap-2 rounded-full px-6 shadow-lg animate-fade-in"
