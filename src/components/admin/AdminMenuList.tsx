@@ -14,21 +14,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-interface MenuItem {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  image_url: string | null;
-}
+import { MenuItem, Category } from "@/type/type";
 
 interface AdminMenuListProps {
   onEdit: (item: MenuItem) => void;
+  categories: Category[];
 }
 
-export const AdminMenuList = ({ onEdit }: AdminMenuListProps) => {
+export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -86,14 +79,10 @@ export const AdminMenuList = ({ onEdit }: AdminMenuListProps) => {
     }
   };
 
-  const categoryLabels: Record<string, string> = {
-    appetizer: "Appetizer",
-    main_course: "Main Course",
-    pasta: "Pasta",
-    pizza: "Pizza",
-    dessert: "Dessert",
-    beverage: "Beverage",
-    wine: "Wine",
+  const getCategoryName = (categoryId: string | null) => {
+    if (!categoryId) return "Uncategorized";
+    const category = categories.find((c) => c.id === categoryId);
+    return category?.display_name || "Unknown";
   };
 
   if (loading) {
@@ -142,7 +131,7 @@ export const AdminMenuList = ({ onEdit }: AdminMenuListProps) => {
                 {item.description}
               </p>
               <p className="text-xs text-muted-foreground mb-4">
-                {categoryLabels[item.category]}
+                {getCategoryName(item.category_id)}
               </p>
               <div className="flex gap-2">
                 <Button

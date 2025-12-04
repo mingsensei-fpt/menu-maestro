@@ -16,8 +16,7 @@ import { MenuItemDetailModal } from "@/components/MenuItemDetailModal";
 import { Navigation } from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import ItalyBg from "@/assets/italy-bg.jpg";
-import {Category,MenuItem} from "@/type/type.ts"
+import { Category, MenuItem } from "@/type/type";
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -38,7 +37,7 @@ const Menu = () => {
 
   useEffect(() => {
     filterAndSortItems();
-  }, [menuItems, searchQuery, selectedCategory, sortBy]);
+  }, [menuItems, searchQuery, selectedCategory, sortBy, categories]);
 
   const fetchData = async () => {
     try {
@@ -86,7 +85,7 @@ const Menu = () => {
     }
 
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((item) => item.category === selectedCategory);
+      filtered = filtered.filter((item) => item.category_id === selectedCategory);
     }
 
     filtered.sort((a, b) => {
@@ -110,30 +109,6 @@ const Menu = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-
-
-
-  {/*    <header*/}
-  {/*        className="*/}
-  {/*  relative text-white py-16 md:py-24 px-4*/}
-  {/*  bg-[radial-gradient(circle_at_center,rgba(255,180,180,0.7),rgba(180,40,40,0.85))]*/}
-  {/*  backdrop-brightness-95*/}
-  {/*"*/}
-  {/*    >*/}
-
-
-  {/*    /!* Overlay *!/*/}
-  {/*      <div className="absolute inset-0 bg-black/40 backdrop-brightness-90"></div>*/}
-
-  {/*      /!* Content *!/*/}
-  {/*      <div className="container mx-auto max-w-6xl relative z-10 text-center">*/}
-  {/*        <h1 className="text-4xl md:text-7xl font-serif font-bold mb-2 md:mb-4 drop-shadow-lg">*/}
-  {/*          Riverside Terrace Restaurant*/}
-  {/*        </h1>*/}
-  {/*        <div className="mt-4 md:mt-6 h-1 w-24 bg-white/60 mx-auto rounded"></div>*/}
-  {/*      </div>*/}
-  {/*    </header>*/}
-
 
       {/* Filters Section */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b shadow-sm">
@@ -182,7 +157,6 @@ const Menu = () => {
             <p className="text-xl text-muted-foreground">No menu items found</p>
           </div>
         ) : isMobile ? (
-          /* Mobile: 2 columns grid */
           <div className="grid grid-cols-2 gap-4">
             {filteredItems.map((item) => (
               <MobileMenuItemCard
@@ -193,7 +167,6 @@ const Menu = () => {
             ))}
           </div>
         ) : (
-          /* Desktop: 3 columns grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredItems.map((item, index) => (
               <div key={item.id} onClick={() => setSelectedItem(item)}>
@@ -213,21 +186,16 @@ const Menu = () => {
       {/* Footer */}
       <footer className="relative bg-white text-black py-12 mt-12">
         <div className="absolute inset-0 bg-white opacity-50 pointer-events-none"></div>
-
         <div className="relative z-10 container mx-auto max-w-6xl px-4 text-center">
           <p className="font-serif text-2xl mb-3">
             <span className="text-green-700">Riverside Terrace</span>{' '}
             <span className="text-red-700">Restaurant</span>
           </p>
-
           <p className="text-sm opacity-90 mb-4">Where great food meets great views</p>
           <div className="h-px w-32 bg-white/30 mx-auto"></div>
           <p className="text-xs mt-4 opacity-75">© 2025 All rights reserved</p>
         </div>
       </footer>
-
-
-
     </div>
   );
 };

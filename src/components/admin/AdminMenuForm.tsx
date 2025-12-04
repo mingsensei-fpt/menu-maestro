@@ -14,30 +14,33 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, X } from "lucide-react";
-import {Category,MenuItem} from "@/type/type.ts"
+import { Category, MenuItem } from "@/type/type";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface AdminMenuFormProps {
-  editingItem?: any;
+  editingItem?: MenuItem;
   onClose: () => void;
   categories: Category[];
 }
 
-export const AdminMenuForm = ({ editingItem, onClose,categories }: AdminMenuFormProps) => {
+export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFormProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [translating, setTranslating] = useState(false);
   const { toast } = useToast();
+  const { translateDescription } = useTranslation();
 
   useEffect(() => {
     if (editingItem) {
       setName(editingItem.name);
       setDescription(editingItem.description);
       setPrice(editingItem.price.toString());
-      setCategory(editingItem.category);
+      setCategoryId(editingItem.category_id || "");
       setImagePreview(editingItem.image_url);
     }
   }, [editingItem]);
@@ -83,19 +86,46 @@ export const AdminMenuForm = ({ editingItem, onClose,categories }: AdminMenuForm
       return null;
     }
   };
-  type CategoryType = "main_course" | "pasta" | "pizza" | "dessert" | "wine" | "calzone" | "gnocchi" | "special" | "cocktail" | "mocktail" | "soft_drink" | "spirit" | "starter" | "coffee";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const imageUrl = await uploadImage();
+
+      // Translate description for new items or when description changed
+      let translations = {
+        description_ko: editingItem?.description_ko || null,
+        description_ja: editingItem?.description_ja || null,
+        description_cn: editingItem?.description_cn || null,
+        description_vi: editingItem?.description_vi || null,
+        description_ru: editingItem?.description_ru || null,
+        description_kz: editingItem?.description_kz || null,
+      };
+
+      // Only translate if it's a new item or description changed
+      if (!editingItem || editingItem.description !== description) {
+        setTranslating(true);
+        try {
+          translations = await translateDescription(description);
+        } catch (translationError) {
+          console.error("Translation error:", translationError);
+          toast({
+            title: "Translation Warning",
+            description: "Auto-translation failed. Item will be saved with English description only.",
+          });
+        }
+        setTranslating(false);
+      }
+
       const itemData = {
         name,
         description,
         price: parseFloat(price),
-        category: category as CategoryType,
+        category_id: categoryId || null,
         image_url: imageUrl,
+        ...translations,
       };
 
       if (editingItem) {
@@ -124,7 +154,7 @@ export const AdminMenuForm = ({ editingItem, onClose,categories }: AdminMenuForm
       }
 
       onClose();
-      window.location.reload(); // Refresh to show updated list
+      window.location.reload();
     } catch (error: any) {
       toast({
         title: "Error",
@@ -133,127 +163,131 @@ export const AdminMenuForm = ({ editingItem, onClose,categories }: AdminMenuForm
       });
     } finally {
       setLoading(false);
+      setTranslating(false);
     }
   };
 
   return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="font-serif">
-              {editingItem ? "Edit Menu Item" : "Add New Menu Item"}
-            </CardTitle>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-serif">
+            {editingItem ? "Edit Menu Item" : "Add New Menu Item"}
+          </CardTitle>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
+          {/* Left: Image */}
+          <div className="md:w-1/3 flex flex-col gap-4">
+            {imagePreview && (
+              <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-muted">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+              id="image-upload"
+            />
+            <Label htmlFor="image-upload" className="cursor-pointer">
+              <div className="flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-4 hover:border-primary transition-colors">
+                <Upload className="w-5 h-5" />
+                <span>{imageFile ? imageFile.name : "Upload Image"}</span>
+              </div>
+            </Label>
           </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
-            {/* Left: Image */}
-            <div className="md:w-1/3 flex flex-col gap-4">
-              {imagePreview && (
-                  <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-muted">
-                    <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                    />
-                  </div>
-              )}
+
+          {/* Right: Fields */}
+          <div className="md:w-2/3 flex flex-col gap-4">
+            {/* Name */}
+            <div className="space-y-2">
+              <Label htmlFor="name">Name *</Label>
               <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                  id="image-upload"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Margherita Pizza"
+                required
               />
-              <Label htmlFor="image-upload" className="cursor-pointer">
-                <div className="flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-4 hover:border-primary transition-colors">
-                  <Upload className="w-5 h-5" />
-                  <span>{imageFile ? imageFile.name : "Upload Image"}</span>
-                </div>
-              </Label>
             </div>
 
-            {/* Right: Fields */}
-            <div className="md:w-2/3 flex flex-col gap-4">
-              {/* Name */}
-              <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
-                <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Margherita Pizza"
-                    required
-                />
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Fresh mozzarella, tomato sauce, and basil"
-                    rows={3}
-                    required
-                />
-              </div>
-
-              {/* Price */}
-              <div className="space-y-2">
-                <Label htmlFor="price">Price (VND) *</Label>
-                <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="12.50"
-                    required
-                />
-              </div>
-
-              {/* Category */}
-              <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
-                <Select value={category} onValueChange={setCategory} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.name.toLowerCase()}>
-                          {cat.display_name}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                  ) : (
-                      <>{editingItem ? "Update Item" : "Create Item"}</>
-                  )}
-                </Button>
-              </div>
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description">Description (English) *</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Fresh mozzarella, tomato sauce, and basil"
+                rows={3}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Will be auto-translated to Korean, Japanese, Chinese, Vietnamese, Russian, and Kazakh
+              </p>
             </div>
-          </form>
-        </CardContent>
-      </Card>
+
+            {/* Price */}
+            <div className="space-y-2">
+              <Label htmlFor="price">Price (VND) *</Label>
+              <Input
+                id="price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="120000"
+                required
+              />
+            </div>
+
+            {/* Category */}
+            <div className="space-y-2">
+              <Label htmlFor="category">Category *</Label>
+              <Select value={categoryId} onValueChange={setCategoryId} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.display_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={loading || translating} className="flex-1">
+                {loading || translating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {translating ? "Translating..." : "Saving..."}
+                  </>
+                ) : (
+                  <>{editingItem ? "Update Item" : "Create Item"}</>
+                )}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
