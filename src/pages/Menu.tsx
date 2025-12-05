@@ -138,7 +138,7 @@ const Menu = () => {
     const items = [];
     const maxVisiblePages = isMobile ? 3 : 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
@@ -164,6 +164,19 @@ const Menu = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
+      <div className="relative w-full h-[120px] md:h-[150px] lg:h-[180px] overflow-hidden">
+        {/* Image */}
+        <img
+            src="https://res.cloudinary.com/dbp8ozwty/image/upload/v1764899267/z7291253840965_9eefef40c488b1bd2d17bff28170f43f_1_wg9t7t.jpg"
+            alt="Restaurant Banner"
+            className="w-full h-full object-cover"
+        />
+
+        {/* White Overlay (very light) */}
+        {/*<div className="absolute inset-0 bg-white/1"></div>*/}
+      </div>
+
+
 
       {/* Filters Section */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b shadow-sm">
@@ -284,12 +297,12 @@ const Menu = () => {
         <div className="absolute inset-0 bg-white opacity-50 pointer-events-none"></div>
         <div className="relative z-10 container mx-auto max-w-6xl px-4 text-center">
           <p className="font-sans text-2xl font-semibold mb-3">
-            <span className="text-green-700">Riverside Terrace</span>{" "}
-            <span className="text-red-700">Restaurant</span>
+            <span className="text-sm opacity-90 mb-4" >Riverside Terrace</span>{" "}
+            <span className="text-sm opacity-90 mb-4">Restaurant</span>
           </p>
-          <p className="text-sm opacity-90 mb-4">Where great food meets great views</p>
+          <p className="text-sm opacity-90 mb-4">493 Tran Hung Dao Street, An Hai Ward, Da Nang City, Viet Nam</p>
           <div className="h-px w-32 bg-white/30 mx-auto"></div>
-          <p className="text-xs mt-4 opacity-75">© 2025 All rights reserved</p>
+          <p className="text-xs mt-4 opacity-75">(+84) 911500440</p>
         </div>
       </footer>
     </div>

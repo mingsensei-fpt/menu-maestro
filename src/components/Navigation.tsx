@@ -48,15 +48,15 @@ export const Navigation = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <span className="font-sans text-xl font-semibold hidden sm:inline">
-              <span className="text-green-700">Riverside Terrace</span>{' '}
-              <span className="text-red-700">Restaurant</span>
-            </span>
+            {/*<span className="font-sans text-xl font-semibold hidden sm:inline">*/}
+            {/*  <span className="text-green-700">Riverside Terrace</span>{' '}*/}
+            {/*  <span className="text-red-700">Restaurant</span>*/}
+            {/*</span>*/}
           </button>
 
           {/* Auth Section */}
           <div className="flex items-center gap-2">
-            <DarkModeToggle />
+            {/*<DarkModeToggle />*/}
             <LanguageSelector />
             {user ? (
               <>
