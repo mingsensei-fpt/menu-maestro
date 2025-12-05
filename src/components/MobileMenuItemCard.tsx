@@ -1,36 +1,56 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { Image as ImageIcon } from "lucide-react";
 import { MenuItem } from "@/type/type";
+import { useLanguage, Language } from "@/contexts/LanguageContext";
 
 interface MobileMenuItemCardProps {
   item: MenuItem;
   onClick: () => void;
 }
 
+const descriptionKeyMap: Record<Language, keyof MenuItem> = {
+  en: "description",
+  ko: "description_ko",
+  ja: "description_ja",
+  cn: "description_cn",
+  vi: "description_vi",
+  ru: "description_ru",
+  kz: "description_kz",
+};
+
 export const MobileMenuItemCard = ({ item, onClick }: MobileMenuItemCardProps) => {
+  const { language } = useLanguage();
+  
+  const descriptionKey = descriptionKeyMap[language];
+  const description = (item[descriptionKey] as string) || item.description || "";
+
   return (
-    <div 
-      className="flex flex-col cursor-pointer group"
+    <Card
+      className="overflow-hidden cursor-pointer active:scale-95 transition-transform duration-200 border border-border/50"
       onClick={onClick}
     >
-      {/* Image */}
-      <div className="relative aspect-square rounded-xl overflow-hidden bg-muted shadow-card">
+      <div className="relative aspect-square bg-muted">
         {item.image_url ? (
           <img
             src={item.image_url}
             alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/70">
-            <span className="text-4xl opacity-30">🍽️</span>
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+            <ImageIcon className="w-8 h-8 text-muted-foreground" />
           </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-active:opacity-100 transition-opacity"></div>
       </div>
-
-      {/* Name */}
-      <h3 className="font-serif text-sm font-semibold text-foreground mt-2 line-clamp-2 text-center px-1">
-        {item.name}
-      </h3>
-    </div>
+      <CardContent className="p-3">
+        <h3 className="font-serif font-bold text-sm text-foreground truncate">{item.name}</h3>
+        <span className="text-primary font-bold text-sm">
+          {item.price.toLocaleString('vi-VN')} ₫
+        </span>
+        <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+          {description}
+        </p>
+      </CardContent>
+    </Card>
   );
 };
