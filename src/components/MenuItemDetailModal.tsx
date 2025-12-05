@@ -1,4 +1,5 @@
-import { X, ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { X, ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { MenuItem } from "@/type/type";
@@ -10,6 +11,7 @@ interface MenuItemDetailModalProps {
 
 export const MenuItemDetailModal = ({ item, onClose }: MenuItemDetailModalProps) => {
   const { language } = useLanguage();
+  const [isZoomed, setIsZoomed] = useState(false);
 
   if (!item) return null;
 
@@ -26,11 +28,38 @@ export const MenuItemDetailModal = ({ item, onClose }: MenuItemDetailModalProps)
     return descriptionMap[language] || item.description;
   };
 
+  const handleClose = () => {
+    setIsZoomed(false);
+    onClose();
+  };
+
   return (
     <div 
       className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-fade-in flex flex-col items-center justify-center px-4"
-      onClick={onClose}
+      onClick={handleClose}
     >
+      {/* Zoomed Image Overlay */}
+      {isZoomed && item.image_url && (
+        <div 
+          className="fixed inset-0 z-[60] bg-black/90 flex items-center justify-center cursor-zoom-out"
+          onClick={() => setIsZoomed(false)}
+        >
+          <img
+            src={item.image_url}
+            alt={item.name}
+            className="max-w-[95vw] max-h-[95vh] object-contain animate-scale-in"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white rounded-full"
+            onClick={() => setIsZoomed(false)}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
+
       {/* Modal Card */}
       <div 
         className="w-full max-w-lg bg-card rounded-2xl shadow-2xl animate-slide-up overflow-hidden relative"
@@ -41,19 +70,31 @@ export const MenuItemDetailModal = ({ item, onClose }: MenuItemDetailModalProps)
           variant="ghost"
           size="icon"
           className="absolute top-4 right-4 z-10 bg-background/80 backdrop-blur-sm rounded-full"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <X className="h-5 w-5" />
         </Button>
 
         {/* Image */}
-        <div className="relative bg-muted flex items-center justify-center">
+        <div className="relative bg-muted flex items-center justify-center group">
           {item.image_url ? (
-            <img
-              src={item.image_url}
-              alt={item.name}
-              className="w-full max-h-[60vh] object-contain"
-            />
+            <>
+              <img
+                src={item.image_url}
+                alt={item.name}
+                className="w-full max-h-[60vh] object-contain cursor-zoom-in transition-transform duration-300"
+                onClick={() => setIsZoomed(true)}
+              />
+              {/* Zoom button overlay */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute bottom-4 right-4 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={() => setIsZoomed(true)}
+              >
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+            </>
           ) : (
             <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-muted to-muted/70">
               <span className="text-7xl opacity-30">🍽️</span>
@@ -75,7 +116,7 @@ export const MenuItemDetailModal = ({ item, onClose }: MenuItemDetailModalProps)
 
       {/* Back to Menu Button - Outside the modal card */}
       <Button
-        onClick={onClose}
+        onClick={handleClose}
         className="mt-6 gap-2 rounded-full px-6 shadow-lg animate-fade-in"
         style={{ animationDelay: "0.15s" }}
       >

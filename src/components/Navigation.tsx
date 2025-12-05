@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { User, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { DarkModeToggle } from "@/components/DarkModeToggle";
 
 export const Navigation = () => {
   const [user, setUser] = useState<any>(null);
@@ -54,7 +55,8 @@ export const Navigation = () => {
           </button>
 
           {/* Auth Section */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <DarkModeToggle />
             <LanguageSelector />
             {user ? (
               <>
