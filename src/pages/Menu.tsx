@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import { MenuItemCard } from "@/components/MenuItemCard";
 import { MobileMenuItemCard } from "@/components/MobileMenuItemCard";
+import { CategoryScroller } from "@/components/CategoryScroller";
 import { MenuItemDetailModal } from "@/components/MenuItemDetailModal";
 import { Navigation } from "@/components/Navigation";
 import {
@@ -167,8 +168,8 @@ const Menu = () => {
       {/* Filters Section */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b shadow-sm">
         <div className="container mx-auto max-w-6xl px-4 py-4">
-          {/* Search, Category Filter, and Sort Row */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search and Sort Row */}
+          <div className="flex gap-3 mb-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -178,21 +179,8 @@ const Menu = () => {
                 className="pl-10 border-border focus:ring-2 focus:ring-primary/20 transition-all h-10"
               />
             </div>
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-[180px] border-border h-10">
-                <SelectValue placeholder="Category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.display_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-full sm:w-[130px] border-border h-10">
+              <SelectTrigger className="w-[130px] border-border h-10">
                 <SelectValue placeholder="Sort" />
               </SelectTrigger>
               <SelectContent>
@@ -203,6 +191,13 @@ const Menu = () => {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Category Scroller */}
+          <CategoryScroller
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
         </div>
       </div>
 
