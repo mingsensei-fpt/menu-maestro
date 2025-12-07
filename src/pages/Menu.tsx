@@ -167,12 +167,12 @@ const Menu = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Full Page Snowfall Effect */}
+      <div className="snowfall fixed inset-0 z-[5] pointer-events-none" />
+      
       <Navigation />
       <div className="relative w-full h-[120px] md:h-[150px] lg:h-[180px] overflow-hidden">
-        {/* Falling Snow Animation */}
-        <div className="snowfall absolute inset-0 z-10 pointer-events-none" />
-        
         {/* Hero Image */}
         <img
           src="https://res.cloudinary.com/dbp8ozwty/image/upload/v1764899267/z7291253840965_9eefef40c488b1bd2d17bff28170f43f_1_wg9t7t.jpg"
