@@ -198,32 +198,32 @@ All colors MUST be HSL.
     animation: slideUp 0.3s ease-out;
   }
 
-  /* Falling Snow Animation - Light Blue Snowflakes */
-  .snowfall {
-    background-image: 
-      /* Layer 1 - Larger snowflakes */
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle fill='%239ec8ff' opacity='0.7' cx='20' cy='20' r='3'/%3E%3Ccircle fill='%23cfe5ff' opacity='0.5' cx='80' cy='60' r='2'/%3E%3Ccircle fill='%239ec8ff' opacity='0.6' cx='140' cy='30' r='4'/%3E%3Ccircle fill='%23cfe5ff' opacity='0.4' cx='180' cy='90' r='2'/%3E%3Ccircle fill='%239ec8ff' opacity='0.5' cx='50' cy='120' r='3'/%3E%3Ccircle fill='%23cfe5ff' opacity='0.6' cx='120' cy='150' r='2'/%3E%3Ccircle fill='%239ec8ff' opacity='0.4' cx='170' cy='180' r='3'/%3E%3C/svg%3E"),
-      /* Layer 2 - Medium snowflakes */
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 150'%3E%3Ccircle fill='%23cfe5ff' opacity='0.5' cx='30' cy='20' r='2'/%3E%3Ccircle fill='%239ec8ff' opacity='0.4' cx='90' cy='50' r='2'/%3E%3Ccircle fill='%23cfe5ff' opacity='0.6' cx='60' cy='100' r='1.5'/%3E%3Ccircle fill='%239ec8ff' opacity='0.5' cx='120' cy='130' r='2'/%3E%3C/svg%3E"),
-      /* Layer 3 - Small snowflakes */
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle fill='%23cfe5ff' opacity='0.3' cx='15' cy='25' r='1'/%3E%3Ccircle fill='%239ec8ff' opacity='0.4' cx='55' cy='15' r='1.5'/%3E%3Ccircle fill='%23cfe5ff' opacity='0.35' cx='85' cy='60' r='1'/%3E%3Ccircle fill='%239ec8ff' opacity='0.3' cx='35' cy='80' r='1.5'/%3E%3C/svg%3E");
-    background-size: 200px 200px, 150px 150px, 100px 100px;
-    background-repeat: repeat;
-    animation: snowfall 10s linear infinite;
+  /* Falling Snow Animation - Hexagonal Snowflakes */
+  .snowflake-fall {
+    animation: snowflake-fall linear infinite;
+    will-change: transform;
   }
 
-  @keyframes snowfall {
+  @keyframes snowflake-fall {
     0% {
-      background-position: 
-        0px 0px,
-        0px 0px,
-        0px 0px;
+      transform: translateY(-100px) rotate(0deg);
     }
     100% {
-      background-position: 
-        50px 200px,
-        -30px 150px,
-        20px 100px;
+      transform: translateY(100vh) rotate(360deg);
+    }
+  }
+
+  /* Additional shimmer effect for snowflakes */
+  .snowflake-fall img {
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
     }
   }
 }
