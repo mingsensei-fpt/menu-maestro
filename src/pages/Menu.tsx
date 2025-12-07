@@ -14,6 +14,7 @@ import { MobileMenuItemCard } from "@/components/MobileMenuItemCard";
 import { CategoryScroller } from "@/components/CategoryScroller";
 import { MenuItemDetailModal } from "@/components/MenuItemDetailModal";
 import { Navigation } from "@/components/Navigation";
+import { Snowfall } from "@/components/Snowfall";
 import {
   Pagination,
   PaginationContent,
@@ -169,7 +170,7 @@ const Menu = () => {
   return (
     <div className="min-h-screen bg-background relative">
       {/* Full Page Snowfall Effect */}
-      <div className="snowfall fixed inset-0 z-[5] pointer-events-none" />
+      <Snowfall />
       
       <Navigation />
       <div className="relative w-full h-[120px] md:h-[150px] lg:h-[180px] overflow-hidden">
