@@ -23,6 +23,18 @@ interface AdminMenuFormProps {
   categories: Category[];
 }
 
+const LANGUAGE_LABELS: Record<string, string> = {
+  description_ko: "Korean",
+  description_ja: "Japanese",
+  description_cn: "Chinese",
+  description_vi: "Vietnamese",
+  description_ru: "Russian",
+  description_kz: "Kazakh",
+  description_es: "Spanish",
+  description_fr: "French",
+  description_it: "Italian",
+};
+
 export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFormProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -35,6 +47,19 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
   const { toast } = useToast();
   const { translateDescription } = useTranslation();
 
+  // Translation fields for editing
+  const [translations, setTranslations] = useState({
+    description_ko: "",
+    description_ja: "",
+    description_cn: "",
+    description_vi: "",
+    description_ru: "",
+    description_kz: "",
+    description_es: "",
+    description_fr: "",
+    description_it: "",
+  });
+
   useEffect(() => {
     if (editingItem) {
       setName(editingItem.name);
@@ -42,6 +67,17 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
       setPrice(editingItem.price.toString());
       setCategoryId(editingItem.category_id || "");
       setImagePreview(editingItem.image_url);
+      setTranslations({
+        description_ko: editingItem.description_ko || "",
+        description_ja: editingItem.description_ja || "",
+        description_cn: editingItem.description_cn || "",
+        description_vi: editingItem.description_vi || "",
+        description_ru: editingItem.description_ru || "",
+        description_kz: editingItem.description_kz || "",
+        description_es: editingItem.description_es || "",
+        description_fr: editingItem.description_fr || "",
+        description_it: editingItem.description_it || "",
+      });
     }
   }, [editingItem]);
 
@@ -87,6 +123,13 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
     }
   };
 
+  const handleTranslationChange = (key: string, value: string) => {
+    setTranslations((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -94,29 +137,31 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
     try {
       const imageUrl = await uploadImage();
 
-      // Translate description for new items or when description changed
-      let translations = {
-        description_ko: editingItem?.description_ko || null,
-        description_ja: editingItem?.description_ja || null,
-        description_cn: editingItem?.description_cn || null,
-        description_vi: editingItem?.description_vi || null,
-        description_ru: editingItem?.description_ru || null,
-        description_kz: editingItem?.description_kz || null,
-        description_es: editingItem?.description_es || null,
-        description_fr: editingItem?.description_fr || null,
-        description_it: editingItem?.description_it || null,
-      };
+      let finalTranslations = { ...translations };
 
-      // Only translate if it's a new item or description changed
+      // For new items or when English description changed, auto-translate
       if (!editingItem || editingItem.description !== description) {
         setTranslating(true);
         try {
-          translations = await translateDescription(description);
+          const autoTranslations = await translateDescription(description);
+          // For new items, use auto-translations
+          // For editing, only update empty fields or if description changed
+          if (!editingItem) {
+            finalTranslations = autoTranslations;
+          } else {
+            // Keep manually edited translations, fill in empty ones
+            Object.keys(autoTranslations).forEach((key) => {
+              if (!translations[key as keyof typeof translations]) {
+                finalTranslations[key as keyof typeof finalTranslations] = 
+                  autoTranslations[key as keyof typeof autoTranslations] || null;
+              }
+            });
+          }
         } catch (translationError) {
           console.error("Translation error:", translationError);
           toast({
             title: "Translation Warning",
-            description: "Auto-translation failed. Item will be saved with English description only.",
+            description: "Auto-translation failed. Item will be saved with current descriptions.",
           });
         }
         setTranslating(false);
@@ -128,7 +173,15 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
         price: parseFloat(price),
         category_id: categoryId || null,
         image_url: imageUrl,
-        ...translations,
+        description_ko: finalTranslations.description_ko || null,
+        description_ja: finalTranslations.description_ja || null,
+        description_cn: finalTranslations.description_cn || null,
+        description_vi: finalTranslations.description_vi || null,
+        description_ru: finalTranslations.description_ru || null,
+        description_kz: finalTranslations.description_kz || null,
+        description_es: finalTranslations.description_es || null,
+        description_fr: finalTranslations.description_fr || null,
+        description_it: finalTranslations.description_it || null,
       };
 
       if (editingItem) {
@@ -224,7 +277,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
               />
             </div>
 
-            {/* Description */}
+            {/* Description (English) */}
             <div className="space-y-2">
               <Label htmlFor="description">Description (English) *</Label>
               <Textarea
@@ -235,10 +288,34 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
                 rows={3}
                 required
               />
-              <p className="text-xs text-muted-foreground">
-                Will be auto-translated to Korean, Japanese, Chinese, Vietnamese, Russian, Kazakh, Spanish, French, and Italian
-              </p>
+              {!editingItem && (
+                <p className="text-xs text-muted-foreground">
+                  Will be auto-translated to Korean, Japanese, Chinese, Vietnamese, Russian, Kazakh, Spanish, French, and Italian
+                </p>
+              )}
             </div>
+
+            {/* Translation fields - only show when editing */}
+            {editingItem && (
+              <div className="space-y-4 border-t pt-4">
+                <h4 className="font-medium text-sm text-muted-foreground">Translations (editable)</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(LANGUAGE_LABELS).map(([key, label]) => (
+                    <div key={key} className="space-y-2">
+                      <Label htmlFor={key}>{label}</Label>
+                      <Textarea
+                        id={key}
+                        value={translations[key as keyof typeof translations]}
+                        onChange={(e) => handleTranslationChange(key, e.target.value)}
+                        placeholder={`${label} description...`}
+                        rows={2}
+                        className="text-sm"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Price */}
             <div className="space-y-2">
