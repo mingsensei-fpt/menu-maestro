@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, X } from "lucide-react";
 import { Category, MenuItem } from "@/type/type";
 import { useTranslation } from "@/hooks/useTranslation";
+import heic2any from "heic2any";
 
 interface AdminMenuFormProps {
   editingItem?: MenuItem;
@@ -44,6 +45,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [converting, setConverting] = useState(false);
   const { toast } = useToast();
   const { translateDescription } = useTranslation();
 
@@ -81,15 +83,53 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
     }
   }, [editingItem]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const convertHeicToWebp = async (file: File): Promise<File> => {
+    const fileType = file.type.toLowerCase();
+    const fileName = file.name.toLowerCase();
+    
+    // Check if HEIC/HEIF
+    if (fileType === "image/heic" || fileType === "image/heif" || 
+        fileName.endsWith(".heic") || fileName.endsWith(".heif")) {
+      setConverting(true);
+      try {
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: "image/webp",
+          quality: 0.9,
+        });
+        
+        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+        const newFileName = file.name.replace(/\.(heic|heif)$/i, ".webp");
+        return new File([blob], newFileName, { type: "image/webp" });
+      } catch (error) {
+        console.error("HEIC conversion error:", error);
+        toast({
+          title: "Conversion Warning",
+          description: "Failed to convert HEIC image. Please try a different format.",
+          variant: "destructive",
+        });
+        throw error;
+      } finally {
+        setConverting(false);
+      }
+    }
+    return file;
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const processedFile = await convertHeicToWebp(file);
+        setImageFile(processedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(processedFile);
+      } catch (error) {
+        // Error already handled in convertHeicToWebp
+      }
     }
   };
 
@@ -250,17 +290,30 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
             )}
             <Input
               type="file"
-              accept="image/*"
+              accept="image/*,.heic,.heif"
               onChange={handleImageChange}
               className="hidden"
               id="image-upload"
+              disabled={converting}
             />
             <Label htmlFor="image-upload" className="cursor-pointer">
               <div className="flex items-center justify-center gap-2 border-2 border-dashed rounded-lg p-4 hover:border-primary transition-colors">
-                <Upload className="w-5 h-5" />
-                <span>{imageFile ? imageFile.name : "Upload Image"}</span>
+                {converting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Converting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5" />
+                    <span>{imageFile ? imageFile.name : "Upload Image"}</span>
+                  </>
+                )}
               </div>
             </Label>
+            <p className="text-xs text-muted-foreground text-center">
+              Supports HEIC/HEIF (auto-converts to WebP)
+            </p>
           </div>
 
           {/* Right: Fields */}
@@ -354,7 +407,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
               <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading || translating} className="flex-1">
+              <Button type="submit" disabled={loading || translating || converting} className="flex-1">
                 {loading || translating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

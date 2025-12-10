@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Trash2, Image as ImageIcon, Search } from "lucide-react";
+import { Edit, Trash2, Image as ImageIcon, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,29 +29,62 @@ interface AdminMenuListProps {
   categories: Category[];
 }
 
+const ITEMS_PER_PAGE = 20;
+
 export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchMenuItems();
-  }, []);
-
-  useEffect(() => {
-    filterItems();
-  }, [menuItems, searchQuery, selectedCategory]);
+  }, [currentPage, searchQuery, selectedCategory]);
 
   const fetchMenuItems = async () => {
+    setLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
+        .from("menu_items")
+        .select("*", { count: "exact" });
+
+      // Filter by category
+      if (selectedCategory && selectedCategory !== "all") {
+        query = query.eq("category_id", selectedCategory);
+      }
+
+      // Filter by search query
+      if (searchQuery.trim()) {
+        query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      // Get total count first
+      const { count } = await query;
+      setTotalCount(count || 0);
+
+      // Then fetch paginated data
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+
+      let dataQuery = supabase
         .from("menu_items")
         .select("*")
-        .order("name");
+        .order("name")
+        .range(from, to);
+
+      if (selectedCategory && selectedCategory !== "all") {
+        dataQuery = dataQuery.eq("category_id", selectedCategory);
+      }
+
+      if (searchQuery.trim()) {
+        dataQuery = dataQuery.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      const { data, error } = await dataQuery;
 
       if (error) throw error;
       setMenuItems(data || []);
@@ -66,26 +99,10 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
     }
   };
 
-  const filterItems = () => {
-    let items = [...menuItems];
-
-    // Filter by category
-    if (selectedCategory && selectedCategory !== "all") {
-      items = items.filter((item) => item.category_id === selectedCategory);
-    }
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      items = items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(query) ||
-          item.description.toLowerCase().includes(query)
-      );
-    }
-
-    setFilteredItems(items);
-  };
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -120,6 +137,8 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
     const category = categories.find((c) => c.id === categoryId);
     return category?.display_name || "Unknown";
   };
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   if (loading) {
     return (
@@ -157,69 +176,96 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
         </Select>
       </div>
 
-      {filteredItems.length === 0 ? (
+      {menuItems.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground">
-              {menuItems.length === 0
+              {totalCount === 0
                 ? "No menu items yet. Add your first item!"
                 : "No items match your search criteria."}
             </p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
-              <div className="relative h-40 bg-muted">
-                {item.image_url ? (
-                  <img
-                    src={item.image_url}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                    <ImageIcon className="w-12 h-12 text-muted-foreground" />
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {menuItems.map((item) => (
+              <Card key={item.id} className="overflow-hidden">
+                <div className="relative h-40 bg-muted">
+                  {item.image_url ? (
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                      <ImageIcon className="w-12 h-12 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-sans font-semibold text-lg">{item.name}</h3>
+                    <span className="text-primary font-bold">{item.price.toLocaleString('vi-VN')} ₫</span>
                   </div>
-                )}
-              </div>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-sans font-semibold text-lg">{item.name}</h3>
-                  <span className="text-primary font-bold">{item.price.toLocaleString('vi-VN')} ₫</span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                  {item.description}
-                </p>
-                <p className="text-xs text-muted-foreground mb-4">
-                  {getCategoryName(item.category_id)}
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(item)}
-                    className="flex-1"
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setDeleteId(item.id)}
-                    className="flex-1"
-                  >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Delete
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                  <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
+                    {item.description}
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    {getCategoryName(item.category_id)}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEdit(item)}
+                      className="flex-1"
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setDeleteId(item.id)}
+                      className="flex-1"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground px-4">
+                Page {currentPage} of {totalPages} ({totalCount} items)
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
