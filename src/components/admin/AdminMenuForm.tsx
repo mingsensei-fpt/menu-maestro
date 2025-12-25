@@ -90,27 +90,76 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
     const fileName = file.name.toLowerCase();
     
     // Check if HEIC/HEIF
-    if (fileType === "image/heic" || fileType === "image/heif" || 
-        fileName.endsWith(".heic") || fileName.endsWith(".heif")) {
+    const isHeic = fileType === "image/heic" || fileType === "image/heif" || 
+        fileName.endsWith(".heic") || fileName.endsWith(".heif");
+    
+    if (isHeic) {
       setConverting(true);
       try {
-        const convertedBlob = await heic2any({
+        // First try to convert to PNG (more reliable), then to WebP
+        const pngBlob = await heic2any({
           blob: file,
-          toType: "image/webp",
-          quality: 0.9,
+          toType: "image/png",
+          quality: 1,
         });
         
-        const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-        const newFileName = file.name.replace(/\.(heic|heif)$/i, ".webp");
-        return new File([blob], newFileName, { type: "image/webp" });
+        const blob = Array.isArray(pngBlob) ? pngBlob[0] : pngBlob;
+        
+        // Now convert PNG to WebP using canvas
+        return new Promise((resolve) => {
+          const img = new Image();
+          const blobUrl = URL.createObjectURL(blob);
+          
+          img.onload = () => {
+            URL.revokeObjectURL(blobUrl);
+            
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+              // Fallback to PNG if canvas fails
+              const newFileName = file.name.replace(/\.(heic|heif)$/i, ".png");
+              resolve(new File([blob], newFileName, { type: "image/png" }));
+              return;
+            }
+            
+            ctx.drawImage(img, 0, 0);
+            
+            canvas.toBlob(
+              (webpBlob) => {
+                if (webpBlob) {
+                  const newFileName = file.name.replace(/\.(heic|heif)$/i, ".webp");
+                  resolve(new File([webpBlob], newFileName, { type: "image/webp" }));
+                } else {
+                  // Fallback to PNG
+                  const newFileName = file.name.replace(/\.(heic|heif)$/i, ".png");
+                  resolve(new File([blob], newFileName, { type: "image/png" }));
+                }
+              },
+              "image/webp",
+              0.9
+            );
+          };
+          
+          img.onerror = () => {
+            URL.revokeObjectURL(blobUrl);
+            // Fallback to PNG
+            const newFileName = file.name.replace(/\.(heic|heif)$/i, ".png");
+            resolve(new File([blob], newFileName, { type: "image/png" }));
+          };
+          
+          img.src = blobUrl;
+        });
       } catch (error) {
         console.error("HEIC conversion error:", error);
         toast({
           title: "Conversion Warning",
-          description: "Failed to convert HEIC image. Please try a different format.",
-          variant: "destructive",
+          description: "HEIC conversion failed. Uploading original file.",
         });
-        throw error;
+        // Return original file as fallback - don't block upload
+        return file;
       } finally {
         setConverting(false);
       }
@@ -121,16 +170,27 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      try {
-        const processedFile = await convertHeicToWebp(file);
-        setImageFile(processedFile);
+      const processedFile = await convertHeicToWebp(file);
+      setImageFile(processedFile);
+      
+      // For HEIC files that couldn't be converted, we can't preview them in browser
+      const fileName = file.name.toLowerCase();
+      const isOriginalHeic = (fileName.endsWith(".heic") || fileName.endsWith(".heif")) && 
+                              processedFile.name === file.name;
+      
+      if (isOriginalHeic) {
+        // Can't preview HEIC in browser, show placeholder
+        setImagePreview(null);
+        toast({
+          title: "Preview unavailable",
+          description: "HEIC files cannot be previewed. Image will be uploaded as-is.",
+        });
+      } else {
         const reader = new FileReader();
         reader.onloadend = () => {
           setImagePreview(reader.result as string);
         };
         reader.readAsDataURL(processedFile);
-      } catch (error) {
-        // Error already handled in convertHeicToWebp
       }
     }
   };
