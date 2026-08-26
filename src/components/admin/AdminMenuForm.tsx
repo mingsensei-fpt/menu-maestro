@@ -286,7 +286,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
     setLoading(true);
 
     try {
-      const imageUrl = await uploadImage();
+      const { imageUrl, thumbnailUrl } = await uploadImage();
 
       let finalTranslations = { ...translations };
 
@@ -325,6 +325,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
         vat: parseFloat(vat) || 0,
         category_id: categoryId || null,
         image_url: imageUrl,
+        thumbnail_url: thumbnailUrl,
         description_ko: finalTranslations.description_ko || null,
         description_ja: finalTranslations.description_ja || null,
         description_cn: finalTranslations.description_cn || null,
