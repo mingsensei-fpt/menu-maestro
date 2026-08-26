@@ -195,25 +195,74 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
     }
   };
 
-  const uploadImage = async (): Promise<string | null> => {
-    if (!imageFile) return editingItem?.image_url || null;
+  /** Resize + encode a file to WebP. Returns null when the browser cannot decode it. */
+  const resizeToWebp = (file: File, maxPx: number, quality: number): Promise<Blob | null> =>
+    new Promise((resolve) => {
+      const objectUrl = URL.createObjectURL(file);
+      const img = new Image();
+
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        let width = img.naturalWidth;
+        let height = img.naturalHeight;
+        if (width > maxPx || height > maxPx) {
+          const scale = maxPx / Math.max(width, height);
+          width = Math.round(width * scale);
+          height = Math.round(height * scale);
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(null);
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => resolve(blob), "image/webp", quality);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(null);
+      };
+
+      img.src = objectUrl;
+    });
+
+  const uploadBlob = async (blob: Blob, ext = "webp", contentType = "image/webp") => {
+    const filePath = `${crypto.randomUUID()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("menu-images")
+      .upload(filePath, blob, { contentType, cacheControl: "31536000" });
+    if (uploadError) throw uploadError;
+    return supabase.storage.from("menu-images").getPublicUrl(filePath).data.publicUrl;
+  };
+
+  const uploadImage = async (): Promise<{ imageUrl: string | null; thumbnailUrl: string | null }> => {
+    if (!imageFile) {
+      return {
+        imageUrl: editingItem?.image_url || null,
+        thumbnailUrl: editingItem?.thumbnail_url || null,
+      };
+    }
 
     try {
-      const fileExt = imageFile.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      const [fullBlob, thumbBlob] = await Promise.all([
+        resizeToWebp(imageFile, 1200, 0.8),
+        resizeToWebp(imageFile, 400, 0.72),
+      ]);
 
-      const { error: uploadError } = await supabase.storage
-        .from("menu-images")
-        .upload(filePath, imageFile);
+      if (fullBlob) {
+        const [imageUrl, thumbnailUrl] = await Promise.all([
+          uploadBlob(fullBlob),
+          thumbBlob ? uploadBlob(thumbBlob) : Promise.resolve(null),
+        ]);
+        return { imageUrl, thumbnailUrl };
+      }
 
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from("menu-images")
-        .getPublicUrl(filePath);
-
-      return data.publicUrl;
+      // Fallback: browser could not decode (e.g. unconverted HEIC) — upload original
+      const fileExt = imageFile.name.split(".").pop() || "jpg";
+      const imageUrl = await uploadBlob(imageFile, fileExt, imageFile.type || `image/${fileExt}`);
+      return { imageUrl, thumbnailUrl: null };
     } catch (error) {
       console.error("Image upload error:", error);
       toast({
@@ -221,7 +270,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
         description: "Image upload failed, but item will be saved without image",
         variant: "destructive",
       });
-      return null;
+      return { imageUrl: null, thumbnailUrl: null };
     }
   };
 
