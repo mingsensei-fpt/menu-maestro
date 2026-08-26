@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LogOut, Plus, TrendingUp, FolderOpen } from "lucide-react";
 import { AutoFixAllButton } from "@/components/admin/AutoFixAllButton";
 import { QuickVATUpdate } from "@/components/admin/QuickVATUpdate";
+import { ImageOptimizerButton } from "@/components/admin/ImageOptimizerButton";
 import { AdminMenuList } from "@/components/admin/AdminMenuList";
 import { AdminMenuForm } from "@/components/admin/AdminMenuForm";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
@@ -164,6 +165,7 @@ const Admin = () => {
                   <div className="flex gap-2 flex-wrap">
                     <QuickVATUpdate categories={categories} />
                     <AutoFixAllButton />
+                    <ImageOptimizerButton />
                     <Button onClick={() => setShowForm(true)}>
                       <Plus className="w-4 h-4 mr-2" />
                       Add Item
