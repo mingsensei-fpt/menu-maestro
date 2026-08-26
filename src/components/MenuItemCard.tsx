@@ -36,8 +36,10 @@ export const MenuItemCard = ({ item, index }: MenuItemCardProps) => {
       <div className="relative h-40 bg-muted overflow-hidden">
         {item.image_url ? (
           <img
-            src={item.image_url}
+            src={item.thumbnail_url || item.image_url}
             alt={item.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (

@@ -15,6 +15,7 @@ export interface MenuItem {
     vat: number;
     category_id: string | null;
     image_url: string | null;
+    thumbnail_url?: string | null;
 }
 
 export interface Category {

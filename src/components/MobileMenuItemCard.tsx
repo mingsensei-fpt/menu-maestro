@@ -35,8 +35,10 @@ export const MobileMenuItemCard = ({ item, onClick }: MobileMenuItemCardProps) =
       <div className="relative aspect-square bg-muted">
         {item.image_url ? (
           <img
-            src={item.image_url}
+            src={item.thumbnail_url || item.image_url}
             alt={item.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover"
           />
         ) : (
