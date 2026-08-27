@@ -35,29 +35,47 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedBadge, setSelectedBadge] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("name");
   const { toast } = useToast();
+
+  // Debounce search input so typing doesn't refetch on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchQuery), 350);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   useEffect(() => {
     fetchMenuItems();
-  }, [searchQuery, selectedCategory]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, selectedCategory, selectedBadge, sortBy]);
 
   const fetchMenuItems = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from("menu_items")
-        .select("*")
-        .order("name");
+      let query = supabase.from("menu_items").select("*");
+
+      if (sortBy === "name") query = query.order("name");
+      else if (sortBy === "price_asc") query = query.order("price", { ascending: true });
+      else if (sortBy === "price_desc") query = query.order("price", { ascending: false });
+      else query = query.order("created_at", { ascending: false });
 
       // Filter by category
       if (selectedCategory && selectedCategory !== "all") {
         query = query.eq("category_id", selectedCategory);
       }
 
+      // Filter by badge
+      if (selectedBadge && selectedBadge !== "all") {
+        query = query.contains("badges", [selectedBadge]);
+      }
+
       // Filter by search query
-      if (searchQuery.trim()) {
-        query = query.or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      const term = debouncedSearch.trim();
+      if (term) {
+        query = query.or(`name.ilike.%${term}%,description.ilike.%${term}%`);
       }
 
       const { data, error } = await query;
@@ -109,21 +127,11 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
     return category?.display_name || "Unknown";
   };
 
-  
-
-  if (loading) {
-    return (
-      <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
   return (
     <>
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3 mb-6">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search menu items..."
@@ -133,7 +141,7 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
           />
         </div>
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
@@ -145,7 +153,39 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
             ))}
           </SelectContent>
         </Select>
+        <Select value={selectedBadge} onValueChange={setSelectedBadge}>
+          <SelectTrigger className="w-full sm:w-[170px]">
+            <SelectValue placeholder="All Badges" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Badges</SelectItem>
+            {BADGE_OPTIONS.map((b) => (
+              <SelectItem key={b.key} value={b.key}>
+                {b.icon} {b.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-full sm:w-[160px]">
+            <SelectValue placeholder="Sort" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="name">Name (A-Z)</SelectItem>
+            <SelectItem value="price_asc">Price: Low to High</SelectItem>
+            <SelectItem value="price_desc">Price: High to Low</SelectItem>
+            <SelectItem value="newest">Newest</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
+
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+      <>
+
 
       {menuItems.length === 0 ? (
         <Card>
