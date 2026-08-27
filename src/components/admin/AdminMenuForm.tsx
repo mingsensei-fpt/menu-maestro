@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, X } from "lucide-react";
 import { Category, MenuItem } from "@/type/type";
+import { BADGE_OPTIONS } from "@/components/MenuBadges";
 import { useTranslation } from "@/hooks/useTranslation";
 import heic2any from "heic2any";
 
@@ -71,6 +72,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
       setPrice(editingItem.price.toString());
       setVat(editingItem.vat?.toString() || "0");
       setCategoryId(editingItem.category_id || "");
+      setBadges(editingItem.badges || []);
       setImagePreview(editingItem.image_url);
       setTranslations({
         description_ko: editingItem.description_ko || "",
@@ -325,6 +327,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
         price: parseFloat(price),
         vat: parseFloat(vat) || 0,
         category_id: categoryId || null,
+        badges,
         image_url: imageUrl,
         thumbnail_url: thumbnailUrl,
         description_ko: finalTranslations.description_ko || null,
