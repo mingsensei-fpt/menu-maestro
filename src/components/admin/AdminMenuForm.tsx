@@ -535,6 +535,40 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
               </div>
             </div>
 
+            {/* Badges */}
+            <div className="space-y-2">
+              <Label>Badges</Label>
+              <div className="flex flex-wrap gap-2">
+                {BADGE_OPTIONS.map((b) => {
+                  const active = badges.includes(b.key);
+                  return (
+                    <button
+                      key={b.key}
+                      type="button"
+                      onClick={() =>
+                        setBadges((prev) =>
+                          prev.includes(b.key)
+                            ? prev.filter((k) => k !== b.key)
+                            : [...prev, b.key]
+                        )
+                      }
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                        active
+                          ? `${b.className} border-transparent`
+                          : "bg-background text-muted-foreground border-border hover:bg-muted"
+                      }`}
+                    >
+                      <span aria-hidden>{b.icon}</span>
+                      {b.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Chọn nhãn để khách dễ nhận biết món (hiển thị trên ảnh món ăn).
+              </p>
+            </div>
+
             {/* Category */}
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
