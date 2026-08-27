@@ -183,6 +183,7 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
                       )}
                     </div>
                   </div>
+                  <MenuBadges badges={item.badges} className="mb-2" />
                   <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                     {item.description}
                   </p>
