@@ -46,6 +46,7 @@ export type Database = {
       }
       menu_items: {
         Row: {
+          badges: string[]
           category_id: string | null
           created_at: string
           description: string
@@ -67,6 +68,7 @@ export type Database = {
           vat: number
         }
         Insert: {
+          badges?: string[]
           category_id?: string | null
           created_at?: string
           description: string
@@ -88,6 +90,7 @@ export type Database = {
           vat?: number
         }
         Update: {
+          badges?: string[]
           category_id?: string | null
           created_at?: string
           description?: string

@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Image as ImageIcon } from "lucide-react";
 import { MenuItem } from "@/type/type";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
+import { MenuBadges } from "@/components/MenuBadges";
 
 interface MobileMenuItemCardProps {
   item: MenuItem;
@@ -46,6 +47,7 @@ export const MobileMenuItemCard = ({ item, onClick }: MobileMenuItemCardProps) =
             <ImageIcon className="w-8 h-8 text-muted-foreground" />
           </div>
         )}
+        <MenuBadges badges={item.badges} showLabel={false} className="absolute top-1.5 left-1.5" />
       </div>
       <CardContent className="p-3">
         <h3 className="font-sans font-semibold text-sm text-foreground truncate">{item.name}</h3>

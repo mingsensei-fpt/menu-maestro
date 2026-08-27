@@ -3,6 +3,7 @@ import { X, ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { MenuItem } from "@/type/type";
+import { MenuBadges } from "@/components/MenuBadges";
 
 interface MenuItemDetailModalProps {
   item: MenuItem | null;
@@ -107,9 +108,12 @@ export const MenuItemDetailModal = ({ item, onClose }: MenuItemDetailModalProps)
 
         {/* Content */}
         <div className="p-6 pt-4">
-          <h2 className="font-sans text-2xl md:text-3xl font-semibold text-foreground mb-4">
+          <h2 className="font-sans text-2xl md:text-3xl font-semibold text-foreground mb-3">
             {item.name}
           </h2>
+
+          <MenuBadges badges={item.badges} size="md" className="mb-4" />
+
           
           <p className="text-muted-foreground leading-relaxed mb-6">
             {getDescription()}

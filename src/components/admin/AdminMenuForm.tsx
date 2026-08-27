@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Upload, X } from "lucide-react";
 import { Category, MenuItem } from "@/type/type";
+import { BADGE_OPTIONS } from "@/components/MenuBadges";
 import { useTranslation } from "@/hooks/useTranslation";
 import heic2any from "heic2any";
 
@@ -42,6 +43,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
   const [price, setPrice] = useState("");
   const [vat, setVat] = useState("0");
   const [categoryId, setCategoryId] = useState("");
+  const [badges, setBadges] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -70,6 +72,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
       setPrice(editingItem.price.toString());
       setVat(editingItem.vat?.toString() || "0");
       setCategoryId(editingItem.category_id || "");
+      setBadges(editingItem.badges || []);
       setImagePreview(editingItem.image_url);
       setTranslations({
         description_ko: editingItem.description_ko || "",
@@ -324,6 +327,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
         price: parseFloat(price),
         vat: parseFloat(vat) || 0,
         category_id: categoryId || null,
+        badges,
         image_url: imageUrl,
         thumbnail_url: thumbnailUrl,
         description_ko: finalTranslations.description_ko || null,
@@ -533,6 +537,40 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
                   placeholder="10"
                 />
               </div>
+            </div>
+
+            {/* Badges */}
+            <div className="space-y-2">
+              <Label>Badges</Label>
+              <div className="flex flex-wrap gap-2">
+                {BADGE_OPTIONS.map((b) => {
+                  const active = badges.includes(b.key);
+                  return (
+                    <button
+                      key={b.key}
+                      type="button"
+                      onClick={() =>
+                        setBadges((prev) =>
+                          prev.includes(b.key)
+                            ? prev.filter((k) => k !== b.key)
+                            : [...prev, b.key]
+                        )
+                      }
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                        active
+                          ? `${b.className} border-transparent`
+                          : "bg-background text-muted-foreground border-border hover:bg-muted"
+                      }`}
+                    >
+                      <span aria-hidden>{b.icon}</span>
+                      {b.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Chọn nhãn để khách dễ nhận biết món (hiển thị trên ảnh món ăn).
+              </p>
             </div>
 
             {/* Category */}
