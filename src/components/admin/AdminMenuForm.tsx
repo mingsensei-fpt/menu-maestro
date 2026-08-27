@@ -42,6 +42,7 @@ export const AdminMenuForm = ({ editingItem, onClose, categories }: AdminMenuFor
   const [price, setPrice] = useState("");
   const [vat, setVat] = useState("0");
   const [categoryId, setCategoryId] = useState("");
+  const [badges, setBadges] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
