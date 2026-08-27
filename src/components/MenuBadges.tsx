@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export type BadgeKey = "pork" | "beef" | "vegetarian";
+export type BadgeKey = "pork" | "beef" | "vegetarian" | "vegan" | "gluten_free";
 
 export const BADGE_OPTIONS: {
   key: BadgeKey;
@@ -25,6 +25,18 @@ export const BADGE_OPTIONS: {
     label: "Vegetarian",
     icon: "🌿",
     className: "bg-emerald-600/90 text-white",
+  },
+  {
+    key: "vegan",
+    label: "Vegan",
+    icon: "🥬",
+    className: "bg-lime-600/90 text-white",
+  },
+  {
+    key: "gluten_free",
+    label: "Gluten Free",
+    icon: "🌾",
+    className: "bg-sky-600/90 text-white",
   },
 ];
 
