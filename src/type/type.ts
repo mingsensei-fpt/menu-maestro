@@ -16,6 +16,7 @@ export interface MenuItem {
     category_id: string | null;
     image_url: string | null;
     thumbnail_url?: string | null;
+    badges?: string[] | null;
 }
 
 export interface Category {
