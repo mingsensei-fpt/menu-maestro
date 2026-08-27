@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { MenuItem, Category } from "@/type/type";
+import { MenuBadges } from "@/components/MenuBadges";
 
 interface AdminMenuListProps {
   onEdit: (item: MenuItem) => void;
