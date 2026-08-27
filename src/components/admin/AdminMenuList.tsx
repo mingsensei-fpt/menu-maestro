@@ -264,6 +264,9 @@ export const AdminMenuList = ({ onEdit, categories }: AdminMenuListProps) => {
           </div>
         </>
       )}
+      </>
+      )}
+
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
