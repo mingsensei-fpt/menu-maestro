@@ -3,6 +3,7 @@ import { X, ArrowLeft, ZoomIn, ZoomOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
 import { MenuItem } from "@/type/type";
+import { MenuBadges } from "@/components/MenuBadges";
 
 interface MenuItemDetailModalProps {
   item: MenuItem | null;
