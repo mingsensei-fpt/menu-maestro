@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Image as ImageIcon } from "lucide-react";
 import { MenuItem } from "@/type/type";
 import { useLanguage, Language } from "@/contexts/LanguageContext";
+import { MenuBadges } from "@/components/MenuBadges";
 
 interface MobileMenuItemCardProps {
   item: MenuItem;
