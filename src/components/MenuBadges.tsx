@@ -62,7 +62,7 @@ export const MenuBadges = ({
             )}
           >
             <span aria-hidden>{badge.icon}</span>
-            {showLabel && <span>{badge.label.split(" / ")[0]}</span>}
+            {showLabel && <span>{badge.label}</span>}
           </span>
         );
       })}
