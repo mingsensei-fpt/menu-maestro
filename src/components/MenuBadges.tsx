@@ -10,19 +10,19 @@ export const BADGE_OPTIONS: {
 }[] = [
   {
     key: "pork",
-    label: "Heo / Pork",
+    label: "Pork",
     icon: "🐖",
     className: "bg-rose-500/90 text-white",
   },
   {
     key: "beef",
-    label: "Bò / Beef",
+    label: "Beef",
     icon: "🐄",
     className: "bg-amber-700/90 text-white",
   },
   {
     key: "vegetarian",
-    label: "Chay / Vegetarian",
+    label: "Vegetarian",
     icon: "🌿",
     className: "bg-emerald-600/90 text-white",
   },
