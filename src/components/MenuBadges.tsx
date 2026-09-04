@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export type BadgeKey = "pork" | "beef" | "vegetarian" | "vegan" | "gluten_free" | "spicy";
+export type BadgeKey = "pork" | "beef" | "vegetarian" | "vegan" | "gluten_free" | "spicy" | "dairy";
 
 export const BADGE_OPTIONS: {
   key: BadgeKey;
