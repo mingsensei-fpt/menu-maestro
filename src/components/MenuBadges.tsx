@@ -2,10 +2,22 @@ import { cn } from "@/lib/utils";
 
 export type BadgeKey = "pork" | "beef" | "vegetarian" | "vegan" | "gluten_free" | "spicy" | "dairy";
 
+const DairyFreeIcon = () => (
+  <span className="relative inline-flex items-center justify-center">
+    <span aria-hidden>🥛</span>
+    <span
+      aria-hidden
+      className="absolute inset-0 flex items-center justify-center"
+    >
+      <span className="w-[120%] h-0.5 bg-current -rotate-45 rounded-full" />
+    </span>
+  </span>
+);
+
 export const BADGE_OPTIONS: {
   key: BadgeKey;
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   className: string;
 }[] = [
   {
@@ -47,7 +59,7 @@ export const BADGE_OPTIONS: {
   {
     key: "dairy",
     label: "Dairy-free (no milk)",
-    icon: "🥛",
+    icon: <DairyFreeIcon />,
     className: "bg-blue-100/90 text-blue-900",
   },
 ];
