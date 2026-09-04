@@ -44,6 +44,12 @@ export const BADGE_OPTIONS: {
     icon: "🌶️",
     className: "bg-red-600/90 text-white",
   },
+  {
+    key: "dairy",
+    label: "Dairy",
+    icon: "🥛",
+    className: "bg-blue-100/90 text-blue-900",
+  },
 ];
 
 export const getBadge = (key: string) =>
