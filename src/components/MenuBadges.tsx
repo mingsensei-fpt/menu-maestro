@@ -1,3 +1,4 @@
+import React from "react";
 import { cn } from "@/lib/utils";
 
 export type BadgeKey = "pork" | "beef" | "vegetarian" | "vegan" | "gluten_free" | "spicy" | "dairy";
