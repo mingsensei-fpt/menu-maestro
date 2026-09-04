@@ -46,7 +46,7 @@ export const BADGE_OPTIONS: {
   },
   {
     key: "dairy",
-    label: "Dairy",
+    label: "Dairy-free (no milk)",
     icon: "🥛",
     className: "bg-blue-100/90 text-blue-900",
   },
